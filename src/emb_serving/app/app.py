@@ -30,7 +30,7 @@ def index():
 
 
 @app.get("/encode")
-def update_model(sentence: str):
+def update_model(sentence):
     global model
     emb = model.encode(sentence)
     return {"sentence": sentence, "embedding": emb.tolist()}
@@ -43,4 +43,4 @@ def health():
 
 if __name__ == "__main__":
     setup_logging("DEBUG")
-    uvicorn.run(app, host="0.0.0.0", port=8000, debug=True)
+    uvicorn.run(app, host="0.0.0.0", port=8001, debug=True)

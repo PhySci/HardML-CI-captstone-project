@@ -54,7 +54,7 @@ def load_pickle(file_path: str) -> Any:
     :param file_path: path to Pickle file
     :return:
     """
-    with open(file_path, "r") as fid:
+    with open(file_path, "rb") as fid:
         try:
             res = pickle.load(fid)
         except Exception as err:
