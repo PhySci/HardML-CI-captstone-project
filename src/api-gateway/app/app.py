@@ -55,7 +55,7 @@ def health():
 
 @app.get("/similar")
 def predict(sentence: str):
-    global centroids
+
     r = requests.get("http://"+EMB_SERVING_ADDR+"/encode",
                      params={"sentence": sentence},
                      headers={"Content-Type": "application/json"})
@@ -66,10 +66,28 @@ def predict(sentence: str):
     # @TODO: vectorize this opera
 
     content = r.json()
-    emb_arr = np.array(content["embedding"])
+    emb = content["embedding"]
+    centroid_id = _get_centroid_id(emb)
+
+    params = {"emb": emb}
+
+    r = requests.get("http://localhost:8002/candidates",
+                     params={"emb": emb},
+                     headers={"Content-Type": "application/json"})
+    if r.status_code != 200:
+        _logger.error("Can not get candidates")
+        sys.exit(0)
+
+    return r.json()
+
+
+def _get_centroid_id(emb):
+    global centroids_arr
+    global centroids_keys
+    emb_arr = np.array(emb)
     cosine_dist = cdist(centroids_arr, emb_arr[np.newaxis, :], "cosine")
     best_centroid_id = centroids_keys[np.argmin(cosine_dist)]
-    return r.content
+    return 0 #best_centroid_id
 
 
 if __name__ == "__main__":
