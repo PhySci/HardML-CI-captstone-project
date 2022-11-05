@@ -1,15 +1,15 @@
 import logging
 import os
 import pickle
-import sys
 from typing import List, Any
 import numpy as np
 
 from fastapi import FastAPI, status, Query
 import uvicorn
 
-from utils import setup_logging
-from settings import DATA_GENERATION, CLUSTER_ID
+
+from utils import setup_logging, _load_model, _load_pickle
+from settings import DATA_GENERATION, CLUSTER_ID, MODEL_PATH, S3_URL, S3_ACCESS_KEY, S3_SECRET_KEY
 
 _logger = logging.getLogger(__name__)
 app = FastAPI()
@@ -18,13 +18,29 @@ kd_sentences = None
 kd_tree = None
 
 
+def _get_model(data_generation, cluster_id):
+    """
+
+    :param data_generation:
+    :param cluster_id:
+    :return:
+    """
+    file_name = "cluster_dg{:s}_{:s}.pkl".format(data_generation, cluster_id)
+    file_pth = os.path.join(MODEL_PATH, file_name)
+    if not os.path.exists(file_pth):
+        s3_params = {"endpoint": S3_URL,
+                     "access_key": S3_ACCESS_KEY,
+                     "secret_key": S3_SECRET_KEY}
+        _load_model(file_name, file_pth, s3_params)
+    o = _load_pickle(file_pth)
+    return o
+
+
 @app.on_event("startup")
 def init_app():
     global kd_tree
     global kd_sentences
-    file_pth = "cluster_dg{:s}_{:s}.pkl".format(DATA_GENERATION, CLUSTER_ID)
-    with open(os.path.join("./data", file_pth), "rb") as fid:
-        o = pickle.load(fid)
+    o = _get_model(DATA_GENERATION, CLUSTER_ID)
     kd_tree = o["tree"]
     kd_sentences = o["sentences"]
 

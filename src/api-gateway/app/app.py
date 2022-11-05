@@ -1,10 +1,8 @@
-import json
 import logging
 import sys
 
 import fastapi
 from fastapi import FastAPI, status
-import os
 import uvicorn
 from utils import setup_logging, read_json, load_pickle
 import requests
@@ -68,8 +66,6 @@ def predict(sentence: str):
     content = r.json()
     emb = content["embedding"]
     centroid_id = _get_centroid_id(emb)
-
-    params = {"emb": emb}
 
     r = requests.get("http://localhost:8002/candidates",
                      params={"emb": emb},
