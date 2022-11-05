@@ -3,3 +3,8 @@ import os
 EMB_SERVING_URL = os.environ["EMB_SERVING_URL"]
 EMB_SERVING_PORT = os.environ["EMB_SERVING_PORT"]
 EMB_SERVING_ADDR = EMB_SERVING_URL+":"+EMB_SERVING_PORT
+
+CLUSTER1 = "cluster1"
+CLUSTER2 = "cluster2"
+CLUSTER3 = "cluster3"
+CLUSTER4 = "cluster4"

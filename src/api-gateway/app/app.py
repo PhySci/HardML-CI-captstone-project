@@ -6,7 +6,7 @@ from fastapi import FastAPI, status
 import uvicorn
 from utils import setup_logging, read_json, load_pickle
 import requests
-from settings import EMB_SERVING_ADDR
+from settings import EMB_SERVING_ADDR, CLUSTER1, CLUSTER2, CLUSTER3, CLUSTER4
 import numpy as np
 from scipy.spatial.distance import cdist
 
@@ -17,11 +17,16 @@ centroids = None
 centroids_arr = None
 centroids_keys = list()
 
+cluster_services = {"0": CLUSTER1,
+                    "1": CLUSTER2,
+                    "2": CLUSTER3,
+                    "3": CLUSTER4}
+
 
 @app.on_event("startup")
 def init_app():
     global centroids_keys, centroids_arr
-    centroids_path = "clusters_centers_use_dg1.pkl"
+    centroids_path = "./data/clusters_centers_use_dg1.pkl"
     try:
         centroids = load_pickle(centroids_path)
     except Exception as err:
@@ -66,8 +71,9 @@ def predict(sentence: str):
     content = r.json()
     emb = content["embedding"]
     centroid_id = _get_centroid_id(emb)
+    _logger.info("Cluster %s", centroid_id)
 
-    r = requests.get("http://localhost:8002/candidates",
+    r = requests.get("http://" + cluster_services[centroid_id]+":8000/candidates",
                      params={"emb": emb},
                      headers={"Content-Type": "application/json"})
     if r.status_code != 200:
@@ -83,9 +89,9 @@ def _get_centroid_id(emb):
     emb_arr = np.array(emb)
     cosine_dist = cdist(centroids_arr, emb_arr[np.newaxis, :], "cosine")
     best_centroid_id = centroids_keys[np.argmin(cosine_dist)]
-    return 0 #best_centroid_id
+    return best_centroid_id
 
 
 if __name__ == "__main__":
-    setup_logging("DEBUG")
-    uvicorn.run(app, host="0.0.0.0", port=8000, debug=True)
+    setup_logging("WARNING")
+    uvicorn.run(app, host="0.0.0.0", port=8000, debug=False)

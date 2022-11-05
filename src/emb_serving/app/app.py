@@ -1,5 +1,4 @@
 import logging
-import os
 import sys
 
 from fastapi import FastAPI, status
@@ -42,5 +41,5 @@ def health():
 
 
 if __name__ == "__main__":
-    setup_logging("DEBUG")
-    uvicorn.run(app, host="0.0.0.0", port=8001, debug=True)
+    setup_logging("WARNING")
+    uvicorn.run(app, host="0.0.0.0", port=8000, debug=False)

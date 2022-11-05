@@ -1,6 +1,5 @@
 import logging
 import os
-import pickle
 from typing import List, Any
 import numpy as np
 
@@ -66,5 +65,5 @@ def health():
 
 
 if __name__ == "__main__":
-    setup_logging("DEBUG")
-    uvicorn.run(app, host="0.0.0.0", port=8002, debug=True)
+    setup_logging("WARNING")
+    uvicorn.run(app, host="0.0.0.0", port=8000, debug=False)
