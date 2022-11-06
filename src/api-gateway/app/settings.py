@@ -4,7 +4,13 @@ EMB_SERVING_URL = os.environ["EMB_SERVING_URL"]
 EMB_SERVING_PORT = os.environ["EMB_SERVING_PORT"]
 EMB_SERVING_ADDR = EMB_SERVING_URL+":"+EMB_SERVING_PORT
 
+S3_URL = os.environ["S3_URL"]
+S3_ACCESS_KEY = os.environ["S3_ACCESS_KEY"]
+S3_SECRET_KEY = os.environ["S3_SECRET_KEY"]
+
 CLUSTER1 = "cluster1"
 CLUSTER2 = "cluster2"
 CLUSTER3 = "cluster3"
 CLUSTER4 = "cluster4"
+
+DATA_GENERATION = os.environ["DATA_GENERATION"]

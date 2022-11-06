@@ -4,16 +4,16 @@ import sys
 import fastapi
 from fastapi import FastAPI, status
 import uvicorn
-from utils import setup_logging, read_json, load_pickle
+from utils import setup_logging, load_model, load_pickle
 import requests
-from settings import EMB_SERVING_ADDR, CLUSTER1, CLUSTER2, CLUSTER3, CLUSTER4
+from settings import EMB_SERVING_ADDR, CLUSTER1, CLUSTER2, CLUSTER3, CLUSTER4, S3_URL, S3_ACCESS_KEY, S3_SECRET_KEY, DATA_GENERATION
 import numpy as np
 from scipy.spatial.distance import cdist
+import os
 
 _logger = logging.getLogger(__name__)
 app = FastAPI()
 
-centroids = None
 centroids_arr = None
 centroids_keys = list()
 
@@ -25,12 +25,15 @@ cluster_services = {"0": CLUSTER1,
 
 @app.on_event("startup")
 def init_app():
+    """
+
+    :return:
+    """
     global centroids_keys, centroids_arr
-    centroids_path = "./data/clusters_centers_use_dg1.pkl"
     try:
-        centroids = load_pickle(centroids_path)
+        centroids = _get_model()
     except Exception as err:
-        _logger.critical("Can not read embedding centroids from %s. Error message: %s", centroids_path, err)
+        _logger.critical("Can not load centroids. Error message: %s", err)
         sys.exit(0)
 
     r = list()
@@ -39,6 +42,22 @@ def init_app():
         r.append(centroid_val)
 
     centroids_arr = np.array(r)
+
+
+def _get_model():
+    """
+    :return:
+    """
+    model_path = os.path.join(os.path.dirname(__file__), "data")
+    file_name = "clusters_centers_use_dg{:s}.pkl".format(os.environ["DATA_GENERATION"])
+    file_pth = os.path.join(model_path, file_name)
+    if not os.path.exists(file_pth):
+        s3_params = {"endpoint": S3_URL,
+                     "access_key": S3_ACCESS_KEY,
+                     "secret_key": S3_SECRET_KEY}
+        load_model(file_name, file_pth, s3_params)
+    o = load_pickle(file_pth)
+    return o
 
 
 @app.get("/")
@@ -65,8 +84,6 @@ def predict(sentence: str):
     if r.status_code != 200:
         _logger.error("Can not encode the sentence")
         sys.exit(0)
-
-    # @TODO: vectorize this opera
 
     content = r.json()
     emb = content["embedding"]

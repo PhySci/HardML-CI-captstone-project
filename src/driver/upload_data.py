@@ -44,4 +44,4 @@ def upload_data(data_pth: str, data_generation: str):
 
 
 if __name__ == "__main__":
-    upload_data(data_pth="../../data", data_generation=1)
+    upload_data(data_pth="../../data", data_generation=2)

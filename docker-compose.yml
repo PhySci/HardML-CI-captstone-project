@@ -39,6 +39,10 @@ services:
     environment:
       - EMB_SERVING_URL=emb_serving
       - EMB_SERVING_PORT=8000
+      - S3_URL=s3:9000
+      - S3_ACCESS_KEY=s3_access_key
+      - S3_SECRET_KEY=s3_secret_key
+      - DATA_GENERATION=1
     networks:
       - qa
 
