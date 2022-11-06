@@ -1,0 +1,169 @@
+version: '3.1'
+
+services:
+  s3:
+    image: minio/minio:RELEASE.2022-10-29T06-21-33Z
+    command:
+      server --console-address :9001 /data
+    ports:
+      - "9900:9000"
+      - "9901:9001"
+    environment:
+      - MINIO_ACCESS_KEY=s3_access_key
+      - MINIO_SECRET_KEY=s3_secret_key
+    volumes:
+      - s3:/data
+
+  emb_serving:
+    image: emb_serving:0.1
+
+## First version of the stack, based on first data generation
+
+  api_gateway_dg1:
+    image: api-gateway:0.1
+    deploy:
+      mode: replicated
+      replicas: 1
+    ports:
+      - "9910:8000"
+    depends_on:
+      - s3
+    environment:
+      - EMB_SERVING_URL=emb_serving
+      - EMB_SERVING_PORT=8000
+      - S3_URL=s3:9000
+      - S3_ACCESS_KEY=s3_access_key
+      - S3_SECRET_KEY=s3_secret_key
+      - DATA_GENERATION=1
+
+  cluster1_dg1:
+    image: cluster_node:0.1
+    deploy:
+      mode: replicated
+      replicas: 1
+    depends_on:
+      - s3
+    environment:
+      - DATA_GENERATION=1
+      - CLUSTER_ID=0
+      - S3_URL=s3:9000
+      - S3_ACCESS_KEY=s3_access_key
+      - S3_SECRET_KEY=s3_secret_key
+
+  cluster2_dg1:
+    image: cluster_node:0.1
+    deploy:
+      mode: replicated
+      replicas: 1
+    depends_on:
+      - s3
+    environment:
+      - DATA_GENERATION=1
+      - CLUSTER_ID=1
+      - S3_URL=s3:9000
+      - S3_ACCESS_KEY=s3_access_key
+      - S3_SECRET_KEY=s3_secret_key
+
+  cluster3_dg1:
+    image: cluster_node:0.1
+    deploy:
+      mode: replicated
+      replicas: 1
+    depends_on:
+      - s3
+    environment:
+      - DATA_GENERATION=1
+      - CLUSTER_ID=2
+      - S3_URL=s3:9000
+      - S3_ACCESS_KEY=s3_access_key
+      - S3_SECRET_KEY=s3_secret_key
+
+  cluster4_dg1:
+    image: cluster_node:0.1
+    deploy:
+      mode: replicated
+      replicas: 1
+    depends_on:
+      - s3
+    environment:
+      - DATA_GENERATION=1
+      - CLUSTER_ID=3
+      - S3_URL=s3:9000
+      - S3_ACCESS_KEY=s3_access_key
+      - S3_SECRET_KEY=s3_secret_key
+
+## Second version of the stack, based on second data generation
+
+  api_gateway_dg2:
+    image: api-gateway:0.1
+    deploy:
+      mode: replicated
+      replicas: 1
+    depends_on:
+      - s3
+    environment:
+      - EMB_SERVING_URL=emb_serving
+      - EMB_SERVING_PORT=8000
+      - S3_URL=s3:9000
+      - S3_ACCESS_KEY=s3_access_key
+      - S3_SECRET_KEY=s3_secret_key
+      - DATA_GENERATION=2
+
+  cluster1_dg2:
+    image: cluster_node:0.1
+    deploy:
+      mode: replicated
+      replicas: 1
+    depends_on:
+      - s3
+    environment:
+      - DATA_GENERATION=2
+      - CLUSTER_ID=0
+      - S3_URL=s3:9000
+      - S3_ACCESS_KEY=s3_access_key
+      - S3_SECRET_KEY=s3_secret_key
+
+  cluster2_dg2:
+    image: cluster_node:0.1
+    deploy:
+      mode: replicated
+      replicas: 1
+    depends_on:
+      - s3
+    environment:
+      - DATA_GENERATION=2
+      - CLUSTER_ID=1
+      - S3_URL=s3:9000
+      - S3_ACCESS_KEY=s3_access_key
+      - S3_SECRET_KEY=s3_secret_key
+
+  cluster3_dg2:
+    image: cluster_node:0.1
+    deploy:
+      mode: replicated
+      replicas: 1
+    depends_on:
+      - s3
+    environment:
+      - DATA_GENERATION=2
+      - CLUSTER_ID=2
+      - S3_URL=s3:9000
+      - S3_ACCESS_KEY=s3_access_key
+      - S3_SECRET_KEY=s3_secret_key
+
+  cluster4_dg2:
+    image: cluster_node:0.1
+    deploy:
+      mode: replicated
+      replicas: 1
+    depends_on:
+      - s3
+    environment:
+      - DATA_GENERATION=2
+      - CLUSTER_ID=3
+      - S3_URL=s3:9000
+      - S3_ACCESS_KEY=s3_access_key
+      - S3_SECRET_KEY=s3_secret_key
+
+volumes:
+  s3:
