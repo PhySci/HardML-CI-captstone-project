@@ -90,7 +90,8 @@ def predict(sentence: str):
     centroid_id = _get_centroid_id(emb)
     _logger.info("Cluster %s", centroid_id)
 
-    r = requests.get("http://" + cluster_services[centroid_id]+":8000/candidates",
+    cluster_node_url = "http://" + cluster_services[centroid_id] + "_dg"+DATA_GENERATION + ":8000/candidates"
+    r = requests.get(cluster_node_url,
                      params={"emb": emb},
                      headers={"Content-Type": "application/json"})
     if r.status_code != 200:

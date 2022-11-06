@@ -35,6 +35,7 @@ def upload_data(data_pth: str, data_generation: str):
         with open(temp_file, "wb") as fid:
             pickle.dump(s, fid)
 
+        print("Upload {:s}".format(file_name))
         try:
             s3_client.fput_object(bucket_name, file_name, temp_file)
         except S3Error as err:
@@ -44,4 +45,5 @@ def upload_data(data_pth: str, data_generation: str):
 
 
 if __name__ == "__main__":
+    upload_data(data_pth="../../data", data_generation=1)
     upload_data(data_pth="../../data", data_generation=2)
